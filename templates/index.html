@@ -2,12 +2,11 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistema Académico EPN - Demo JWT</title>
+    <title>Portal Académico EPN</title>
     <style>
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f4f7f6;
+        background-color: #f0f2f5;
         margin: 0;
         padding: 20px;
       }
@@ -17,196 +16,151 @@
         background: white;
         padding: 30px;
         border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
       h1,
       h2 {
-        color: #003366;
-        text-align: center;
+        color: #1a365d;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 10px;
       }
-      .panel {
-        border: 1px solid #ddd;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        background-color: #fafafa;
-      }
-      input[type="text"],
-      input[type="password"],
-      textarea {
+      input {
         width: 100%;
-        padding: 10px;
-        margin: 5px 0 15px;
-        border: 1px solid #ccc;
+        padding: 12px;
+        margin: 8px 0 20px;
+        border: 1px solid #cbd5e0;
         border-radius: 4px;
         box-sizing: border-box;
       }
       button {
-        background-color: #003366;
+        background-color: #2b6cb0;
         color: white;
-        padding: 10px 15px;
+        padding: 12px 20px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
         width: 100%;
         font-size: 16px;
+        font-weight: bold;
       }
       button:hover {
-        background-color: #002244;
-      }
-      .toggle-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 20px;
-        padding: 15px;
-        background: #ffe6e6;
-        border-radius: 5px;
-        border: 2px solid #ff4d4d;
-        transition: 0.3s;
-      }
-      .toggle-container.secure {
-        background: #e6ffe6;
-        border-color: #2eb82e;
-      }
-      .switch {
-        position: relative;
-        display: inline-block;
-        width: 60px;
-        height: 34px;
-        margin: 0 15px;
-      }
-      .switch input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-      }
-      .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: 0.4s;
-        border-radius: 34px;
-      }
-      .slider:before {
-        position: absolute;
-        content: "";
-        height: 26px;
-        width: 26px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        transition: 0.4s;
-        border-radius: 50%;
-      }
-      input:checked + .slider {
-        background-color: #2eb82e;
-      }
-      input:checked + .slider:before {
-        transform: translateX(26px);
-      }
-      pre {
-        background: #333;
-        color: #fff;
-        padding: 15px;
-        border-radius: 5px;
-        overflow-x: auto;
+        background-color: #2c5282;
       }
       .hidden {
         display: none;
       }
-      .token-box {
-        word-break: break-all;
-        font-family: monospace;
-        color: #d63384;
+      .alert {
+        padding: 15px;
+        background-color: #fed7d7;
+        color: #9b2c2c;
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+      .success {
+        background-color: #c6f6d5;
+        color: #22543d;
+      }
+      .professor-panel {
+        border: 2px dashed #ecc94b;
+        padding: 20px;
+        background-color: #fffff0;
+        margin-top: 20px;
+      }
+
+      /* Panel de control del servidor (Simulado para la clase) */
+      .server-control {
+        background: #2d3748;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>Sistema Académico EPN</h1>
-
-      <div class="toggle-container" id="securityPanel">
-        <span style="font-weight: bold; color: #cc0000" id="vulnLabel"
-          >VULNERABLE (Sin verificar firma)</span
-        >
-        <label class="switch">
-          <input
-            type="checkbox"
-            id="secureToggle"
-            onchange="toggleSecurity()"
-          />
-          <span class="slider"></span>
+      <div class="server-control">
+        <span>⚙️ Panel del Servidor (Backend Config)</span>
+        <label>
+          <input type="checkbox" id="secureMode" checked /> 🔒 Modo Seguro
+          Activado (Verificar Firmas)
         </label>
-        <span style="font-weight: bold; color: gray" id="secLabel"
-          >SEGURO (Verificando firma)</span
+      </div>
+
+      <h1>Sistema de Gestión Académica</h1>
+      <div id="messageBox" class="alert hidden"></div>
+
+      <div id="loginView">
+        <h2>Acceso al Sistema</h2>
+        <p>Estudiante: nvalverde / 123 | Profesor: admin / admin</p>
+        <input type="text" id="username" placeholder="Usuario" />
+        <input type="password" id="password" placeholder="Contraseña" />
+        <button onclick="login()">Iniciar Sesión</button>
+      </div>
+
+      <div id="dashboardView" class="hidden">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
         >
-      </div>
+          <h2 id="welcomeText">Bienvenido</h2>
+          <button
+            onclick="logout()"
+            style="width: auto; background-color: #e53e3e"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
 
-      <div id="loginPanel" class="panel">
-        <h2>Iniciar Sesión</h2>
-        <p>
-          Credenciales de prueba: <b>Usuario:</b> nvalverde / <b>Clave:</b> 123
-        </p>
-        <input
-          type="text"
-          id="username"
-          placeholder="Usuario"
-          value="nvalverde"
-        />
-        <input
-          type="password"
-          id="password"
-          placeholder="Contraseña"
-          value="123"
-        />
-        <button onclick="login()">Ingresar</button>
-      </div>
+        <div id="studentContent" class="hidden">
+          <h3>Tus Calificaciones Reales</h3>
+          <ul id="gradesList"></ul>
+        </div>
 
-      <div id="tokenPanel" class="panel hidden">
-        <h2>Tu Sesión (JWT)</h2>
-        <p>
-          Este es tu token de acceso. Para el ataque, cópialo, edita el payload
-          en <b>jwt.io</b> (cambia el role a "profesor"), y pega el token
-          alterado aquí abajo:
-        </p>
-        <textarea id="jwtToken" rows="4"></textarea>
-        <button onclick="fetchProfile()">
-          Acceder al Portal (Enviar Token)
-        </button>
-        <button
-          onclick="logout()"
-          style="background-color: #cc0000; margin-top: 10px"
-        >
-          Cerrar Sesión
-        </button>
-      </div>
-
-      <div id="profilePanel" class="panel hidden">
-        <h2>Portal Interno</h2>
-        <div id="profileContent"></div>
+        <div id="professorContent" class="professor-panel hidden">
+          <h3>👨‍🏫 Panel de Edición de Actas</h3>
+          <p>
+            Modifica las notas del sistema. Estos cambios impactan la base de
+            datos (en memoria).
+          </p>
+          <input type="text" id="targetStudent" value="nvalverde" disabled />
+          <input
+            type="text"
+            id="targetSubject"
+            placeholder="Materia (ej. Física)"
+          />
+          <input
+            type="number"
+            id="targetGrade"
+            placeholder="Nueva Nota (0-10)"
+            step="0.1"
+          />
+          <button onclick="updateGrade()" style="background-color: #38a169">
+            Subir Nota al SAE
+          </button>
+        </div>
       </div>
     </div>
 
     <script>
-      let currentToken = "";
-
-      function toggleSecurity() {
-        const toggle = document.getElementById("secureToggle");
-        const panel = document.getElementById("securityPanel");
-        if (toggle.checked) {
-          panel.classList.add("secure");
-          document.getElementById("secLabel").style.color = "#008000";
-          document.getElementById("vulnLabel").style.color = "gray";
-        } else {
-          panel.classList.remove("secure");
-          document.getElementById("secLabel").style.color = "gray";
-          document.getElementById("vulnLabel").style.color = "#cc0000";
+      // Al cargar la página, revisamos si ya hay un token (como una app real)
+      window.onload = () => {
+        if (localStorage.getItem("token")) {
+          loadProfile();
         }
+      };
+
+      function showMessage(msg, isSuccess = false) {
+        const box = document.getElementById("messageBox");
+        box.textContent = msg;
+        box.className = isSuccess ? "alert success" : "alert";
+        setTimeout(() => (box.className = "alert hidden"), 5000);
       }
 
       async function login() {
@@ -221,54 +175,86 @@
 
         if (res.ok) {
           const data = await res.json();
-          document.getElementById("jwtToken").value = data.token;
-          document.getElementById("loginPanel").classList.add("hidden");
-          document.getElementById("tokenPanel").classList.remove("hidden");
+          // AQUÍ ES DONDE EL ATACANTE XSS ROBARÍA EL TOKEN
+          localStorage.setItem("token", data.token);
+          loadProfile();
         } else {
-          alert("Credenciales incorrectas");
+          showMessage("Credenciales incorrectas");
         }
       }
 
-      async function fetchProfile() {
-        const token = document.getElementById("jwtToken").value;
-        const isSecure = document.getElementById("secureToggle").checked;
+      async function loadProfile() {
+        const token = localStorage.getItem("token");
+        const isSecure = document.getElementById("secureMode").checked;
 
         const res = await fetch(`/api/profile?secure_mode=${isSecure}`, {
-          headers: { Authorization: "Bearer " + token },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        const contentDiv = document.getElementById("profileContent");
-        document.getElementById("profilePanel").classList.remove("hidden");
 
         if (res.ok) {
           const data = await res.json();
-          let html = `<p><b>Bienvenido:</b> ${data.name}</p>
-                                <p><b>Rol detectado:</b> <span style="color: ${data.role === "profesor" ? "red" : "blue"}">${data.role.toUpperCase()}</span></p>`;
+          document.getElementById("loginView").classList.add("hidden");
+          document.getElementById("dashboardView").classList.remove("hidden");
+          document.getElementById("welcomeText").textContent =
+            `Bienvenido, ${data.name} (${data.role.toUpperCase()})`;
 
           if (data.role === "profesor") {
-            html += `<h3>Panel de Edición de Notas (ACCESO PRIVILEGIADO)</h3>
-                                 <p>⚠️ Tienes permisos para modificar actas y subir notas al SAE.</p>
-                                 <button style="background-color: #28a745;">Modificar Notas de Estudiantes</button>`;
+            document
+              .getElementById("professorContent")
+              .classList.remove("hidden");
+            document.getElementById("studentContent").classList.add("hidden");
           } else {
-            html += `<h3>Mis Calificaciones</h3><ul>`;
+            document.getElementById("professorContent").classList.add("hidden");
+            document
+              .getElementById("studentContent")
+              .classList.remove("hidden");
+
+            const list = document.getElementById("gradesList");
+            list.innerHTML = "";
             for (const [subj, grade] of Object.entries(data.grades)) {
-              html += `<li>${subj}: <b>${grade}</b></li>`;
+              list.innerHTML += `<li>${subj}: <strong>${grade}</strong></li>`;
             }
-            html += `</ul><p>No tienes permisos para editar notas.</p>`;
           }
-          contentDiv.innerHTML = html;
         } else {
-          const error = await res.json();
-          contentDiv.innerHTML = `<p style="color: red;"><b>Error de Acceso:</b> ${error.detail}</p>`;
+          localStorage.removeItem("token");
+          showMessage("Sesión inválida o token rechazado (Firma incorrecta)");
+          logout();
+        }
+      }
+
+      async function updateGrade() {
+        const token = localStorage.getItem("token");
+        const isSecure = document.getElementById("secureMode").checked;
+
+        const payload = {
+          student_username: document.getElementById("targetStudent").value,
+          subject: document.getElementById("targetSubject").value,
+          new_grade: parseFloat(document.getElementById("targetGrade").value),
+        };
+
+        const res = await fetch(`/api/update_grade?secure_mode=${isSecure}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          showMessage(data.message, true);
+        } else {
+          showMessage("Error: " + data.detail);
         }
       }
 
       function logout() {
-        document.getElementById("jwtToken").value = "";
-        document.getElementById("profileContent").innerHTML = "";
-        document.getElementById("tokenPanel").classList.add("hidden");
-        document.getElementById("profilePanel").classList.add("hidden");
-        document.getElementById("loginPanel").classList.remove("hidden");
+        localStorage.removeItem("token");
+        document.getElementById("loginView").classList.remove("hidden");
+        document.getElementById("dashboardView").classList.add("hidden");
+        document.getElementById("professorContent").classList.add("hidden");
+        document.getElementById("studentContent").classList.add("hidden");
       }
     </script>
   </body>
